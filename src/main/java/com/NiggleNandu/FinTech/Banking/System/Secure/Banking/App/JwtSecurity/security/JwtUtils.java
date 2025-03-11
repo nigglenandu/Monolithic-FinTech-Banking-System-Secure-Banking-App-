@@ -1,5 +1,9 @@
 package com.NiggleNandu.FinTech.Banking.System.Secure.Banking.App.JwtSecurity.security;
 
+
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +13,6 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
-
 import java.security.Key;
 
 @Component
@@ -42,6 +45,15 @@ public class JwtUtils {
                 .compact();
     }
 
+    public String getUserNameFromToken(String token){
+        return Jwts.parser()
+                .verifyWith((SecretKey) key())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getSubject();
+    }
+
     private Key key(){
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
     }
@@ -51,6 +63,7 @@ public class JwtUtils {
             System.out.println("validate");
             Jwts.parser()
                     .verifyWith((SecretKey) key())
+                    .build()
                     .parseSignedClaims(authToken);
             return true;
         } catch (MalformedJwtException e){

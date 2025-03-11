@@ -1,0 +1,79 @@
+package com.NiggleNandu.FinTech.Banking.System.Secure.Banking.App.JwtSecurity.filter;
+
+import com.NiggleNandu.FinTech.Banking.System.Secure.Banking.App.JwtSecurity.security.JwtUtils;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+
+
+// filter is executed once per req
+// it extract the jwt token from the req header validate it and set auth in the security context
+@Component // marks this as a spring managed filter
+public class AuthTokenFilter extends OncePerRequestFilter {
+
+    @Autowired
+    private JwtUtils jwtUtils; // utility class for jwt operations
+
+    @Autowired
+    private UserDetailsService userDetailsService;  //service to load user details
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class); //for debugging
+
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        logger.debug("AuthTokenFilter called for uri: {}", request.getRequestURI());
+
+        try {
+            // 1 extract jwt from req header
+            String jwt = parseJwt(request);
+
+            //validate jwt and extract username
+            if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
+                String username = jwtUtils.getUserNameFromToken(jwt);
+
+
+                //load user details from db
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+                // create authentication token and set user roles
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+                logger.debug("Roles from jwt {}", userDetails.getAuthorities());
+
+                // attach auth details to the req
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                // set authentication security context so spring security recognizes the user
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+        } catch (Exception e) {
+            logger.error("Cannot set user authentication {}", e.getMessage());
+        }
+
+        //continue the req process
+        filterChain.doFilter(request, response);
+
+    }
+
+    // extracts the jwt token frm the authorization header
+// authorization|: Bearer <TOKEN>
+    private String parseJwt(HttpServletRequest request) {
+        String jwt = jwtUtils.getJwtFromHeader(request);
+        logger.debug("Extracted jwt {}", jwt);
+        return jwt;
+    }
+}
