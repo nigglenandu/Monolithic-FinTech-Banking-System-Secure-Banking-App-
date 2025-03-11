@@ -18,17 +18,13 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-
-// filter is executed once per req
-// it extract the jwt token from the req header validate it and set auth in the security context
-@Component // marks this as a spring managed filter
+@Component
 public class AuthTokenFilter extends OncePerRequestFilter {
 
     @Autowired
-    private JwtUtils jwtUtils; // utility class for jwt operations
-
+    private JwtUtils jwtUtils;
     @Autowired
-    private UserDetailsService userDetailsService;  //service to load user details
+    private UserDetailsService userDetailsService;
 
     private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class); //for debugging
 
@@ -38,39 +34,29 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         logger.debug("AuthTokenFilter called for uri: {}", request.getRequestURI());
 
         try {
-            // 1 extract jwt from req header
             String jwt = parseJwt(request);
 
-            //validate jwt and extract username
             if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
                 String username = jwtUtils.getUserNameFromToken(jwt);
 
-
-                //load user details from db
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-                // create authentication token and set user roles
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
                 logger.debug("Roles from jwt {}", userDetails.getAuthorities());
 
-                // attach auth details to the req
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                // set authentication security context so spring security recognizes the user
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (Exception e) {
             logger.error("Cannot set user authentication {}", e.getMessage());
         }
 
-        //continue the req process
         filterChain.doFilter(request, response);
 
     }
 
-    // extracts the jwt token frm the authorization header
-// authorization|: Bearer <TOKEN>
     private String parseJwt(HttpServletRequest request) {
         String jwt = jwtUtils.getJwtFromHeader(request);
         logger.debug("Extracted jwt {}", jwt);

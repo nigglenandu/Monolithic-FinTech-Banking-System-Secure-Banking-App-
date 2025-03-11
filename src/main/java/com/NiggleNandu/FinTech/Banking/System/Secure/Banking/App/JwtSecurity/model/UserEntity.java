@@ -1,32 +1,50 @@
-package com.NiggleNandu.FinTech.Banking.System.Secure.Banking.App;
+package com.NiggleNandu.FinTech.Banking.System.Secure.Banking.App.JwtSecurity.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long userId;
+
+    @Column(nullable = false, unique = true)
     private String username;
+
+    @Column(nullable = false)
     private String password;
+
+    @Column(nullable = false, unique = true)
     private String email;
-    private String role;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_role"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<RoleEntity> roles = new HashSet<>();
+
+    @CreationTimestamp
     private LocalDateTime createAt = LocalDateTime.now();
+
+    @UpdateTimestamp
     private LocalDateTime updateAt = LocalDateTime.now();
 
     public UserEntity() {
     }
 
-    public UserEntity(LocalDateTime createAt, String email, String password, String role, LocalDateTime updateAt, long userId, String username) {
+    public UserEntity(LocalDateTime createAt, String email, String password, Set<RoleEntity> roles, LocalDateTime updateAt, long userId, String username) {
         this.createAt = createAt;
         this.email = email;
         this.password = password;
-        this.role = role;
+        this.roles = roles;
         this.updateAt = updateAt;
         this.userId = userId;
         this.username = username;
@@ -56,12 +74,12 @@ public class UserEntity {
         this.password = password;
     }
 
-    public String getRole() {
-        return role;
+    public Set<RoleEntity> getRoles() {
+        return roles;
     }
 
-    public void setRole(String role) {
-        this.role = role;
+    public void setRoles(Set<RoleEntity> roles) {
+        this.roles = roles;
     }
 
     public LocalDateTime getUpdateAt() {
