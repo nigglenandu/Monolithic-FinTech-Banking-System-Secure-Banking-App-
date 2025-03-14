@@ -19,6 +19,9 @@ public class JwtResponse {
         this.username = username;
     }
 
+    public JwtResponse(String jwt, List<String> roles, long userId, String username, String email) {
+    }
+
     public String getEmail() {
         return email;
     }

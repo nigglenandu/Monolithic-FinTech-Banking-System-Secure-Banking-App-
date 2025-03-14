@@ -8,12 +8,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
-import java.security.Key;
 
 @Component
 public class JwtUtils {
@@ -22,7 +20,7 @@ public class JwtUtils {
     @Value("${spring.app.jwtSecret}")
     private String jwtSecret;
 
-    @Value("${spring.app.jwtExpirationMS}")
+    @Value("${spring.app.jwtExpirationMs}")
     private int jwtExpiration;
 
     public String getJwtFromHeader(HttpServletRequest request){
@@ -35,8 +33,7 @@ public class JwtUtils {
         return null;
     }
 
-    public String generateTokenFromUserName(UserDetails userDetails){
-        String username = userDetails.getUsername();
+    public String generateTokenFromUserName(String username){
         return Jwts.builder()
                 .subject(username)
                 .issuedAt(new Date())
@@ -47,14 +44,14 @@ public class JwtUtils {
 
     public String getUserNameFromToken(String token){
         return Jwts.parser()
-                .verifyWith((SecretKey) key())
+                .verifyWith(key())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload()
                 .getSubject();
     }
 
-    private Key key(){
+    private SecretKey key(){
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
     }
 
@@ -62,7 +59,7 @@ public class JwtUtils {
         try{
             System.out.println("validate");
             Jwts.parser()
-                    .verifyWith((SecretKey) key())
+                    .verifyWith(key())
                     .build()
                     .parseSignedClaims(authToken);
             return true;
