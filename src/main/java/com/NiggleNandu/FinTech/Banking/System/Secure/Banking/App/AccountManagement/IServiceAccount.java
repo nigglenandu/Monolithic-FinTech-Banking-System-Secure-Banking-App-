@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IServiceAccount {
-    void addAccount(Account account);
+    Account addAccount(Account account);
     List<Account> getAllAccount();
     Optional<Account> getAccountById(Long id);
-    boolean updateAccountById(Long id, Account account);
+    Optional<Account> updateAccountById(Long id, Account account);
     boolean deleteAccountById(Long id);
 }

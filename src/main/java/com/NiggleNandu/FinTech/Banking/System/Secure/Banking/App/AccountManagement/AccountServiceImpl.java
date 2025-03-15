@@ -14,8 +14,8 @@ public class AccountServiceImpl implements IServiceAccount {
 
 
     @Override
-    public void addAccount(Account account) {
-        accountRepository.save(account);
+    public Account addAccount(Account account) {
+        return accountRepository.save(account);
     }
 
     @Override
@@ -29,18 +29,14 @@ public class AccountServiceImpl implements IServiceAccount {
     }
 
     @Override
-    public boolean updateAccountById(Long id, Account updatedAccount) {
-        Optional<Account> accountOpt = accountRepository.findById(id);
-        if(accountOpt.isPresent()) {
-            Account toUpdate = accountOpt.get();
-            toUpdate.setAccountNumber(updatedAccount.getAccountNumber());
-            toUpdate.setBalance(updatedAccount.getBalance());
-            toUpdate.setStatus(updatedAccount.getStatus());
-            accountRepository.save(toUpdate);
-            return true;
-        } else {
-            return false;
-        }
+    public Optional<Account> updateAccountById(Long id, Account updatedAccount) {
+        return accountRepository.findById(id).
+                map(account -> {
+                    account.setAccountNumber(updatedAccount.getAccountNumber());
+                    account.setBalance(updatedAccount.getBalance());
+                    account.setStatus(updatedAccount.getStatus());
+                    return accountRepository.save(account);
+                });
     }
 
     @Override
