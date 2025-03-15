@@ -16,10 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
@@ -52,8 +49,10 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        System.out.println(userDetails);
 
-        String jwt = jwtUtils.generateTokenFromUserName(userDetails.getUsername());
+        String jwt = jwtUtils.generateTokenFromUsername(userDetails);
+        System.out.println(jwt);
 
         Optional<UserEntity> userEntityOptional = userRepository.findByUsername(userDetails.getUsername());
         if (userEntityOptional.isEmpty()) {
@@ -66,11 +65,8 @@ public class AuthController {
                 .map(role -> role.getRole().name())
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(new JwtResponse(jwt, roles,
-                user.getUserId(),
-                user.getUsername(),
-                user.getEmail()
-        ));
+        return ResponseEntity.ok(new JwtResponse(jwt, roles, user.getUserId(), user.getUsername(), user.getEmail()));
+
     }
 
     @PostMapping("signup")
@@ -85,11 +81,10 @@ public class AuthController {
         user.setEmail(signupRequest.getEmail());
 
         Optional<RoleEntity> userRole = roleRepository.findByRole(Role.ROLE_USER);
-        if(userRole.isPresent()) {
-            user.setRoles(Collections.singleton(userRole.get()));
-        } else {
-            return ResponseEntity.badRequest().body("Error: Default role not found!");
-        }
+        RoleEntity role = roleRepository.findByRole(Role.ROLE_USER)
+                .orElseThrow(() -> new RuntimeException("Error: Default role not found!"));
+        user.setRoles(Collections.singleton(role));
+
 
         userRepository.save(user);
         return ResponseEntity.ok("User registered successfully!");

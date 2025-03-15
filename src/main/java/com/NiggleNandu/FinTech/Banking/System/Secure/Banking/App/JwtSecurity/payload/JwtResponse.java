@@ -10,17 +10,14 @@ public class JwtResponse {
     private String email;
     private List<String> roles;
 
-    public JwtResponse(String email, List<String> roles, String token, String type, Long userId, String username) {
-        this.email = email;
-        this.roles = roles;
+    public JwtResponse(String token, List<String> roles, Long userId, String username, String email) {
         this.token = token;
-        this.type = type;
+        this.roles = roles;
         this.userId = userId;
         this.username = username;
+        this.email = email;
     }
 
-    public JwtResponse(String jwt, List<String> roles, long userId, String username, String email) {
-    }
 
     public String getEmail() {
         return email;
