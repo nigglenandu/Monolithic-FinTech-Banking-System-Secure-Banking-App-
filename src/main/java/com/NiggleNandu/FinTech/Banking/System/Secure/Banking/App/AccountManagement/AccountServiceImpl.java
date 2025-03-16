@@ -41,8 +41,7 @@ public class AccountServiceImpl implements IServiceAccount {
 
     @Override
     public boolean deleteAccountById(Long id) {
-        Optional<Account>  accountOpt = accountRepository.findById(id);
-        if(accountOpt.isPresent()){
+        if(accountRepository.existsById(id)){
             accountRepository.deleteById(id);
             return true;
         } else {

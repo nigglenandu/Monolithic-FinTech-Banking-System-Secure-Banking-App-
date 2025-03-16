@@ -2,7 +2,6 @@ package com.NiggleNandu.FinTech.Banking.System.Secure.Banking.App.AccountManagem
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,8 +12,11 @@ import java.util.List;
 @RequestMapping("/api/accounts")
 public class AccountController {
 
-    @Autowired
-    private IServiceAccount serviceAccount;
+    private final IServiceAccount serviceAccount;
+
+    public AccountController(IServiceAccount serviceAccount) {
+        this.serviceAccount = serviceAccount;
+    }
 
     @PostMapping("/create")
     public ResponseEntity<Account> createAccount(@Valid @RequestBody Account account){
@@ -34,7 +36,7 @@ public class AccountController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Account> updateAccount(@PathVariable Long id, @RequestBody Account account) {
+    public ResponseEntity<Account> updateAccount(@PathVariable Long id, @Valid @RequestBody Account account) {
         return serviceAccount.updateAccountById(id, account)
                 .map(value -> new ResponseEntity<>(value, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
