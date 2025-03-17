@@ -66,11 +66,12 @@ public class AccountServiceImpl implements IServiceAccount {
                     accountRepository.save(sender);
 
                     if(!request.isExternalTransfer()){
-                        return processInternalTransfer(request);
+                        return Optional.of(processInternalTransfer(request));
                     } else {
                         return processExternalTransfer(request);
                     }
-                });
+                })
+                .orElse(Optional.of("Failed: Transfer could not be completed"));
     }
 
     private String processInternalTransfer(FundTransferRequest request){
@@ -96,13 +97,13 @@ public class AccountServiceImpl implements IServiceAccount {
             ResponseEntity<ExternalTransferResponse> response = restTemplate.postForEntity(externalAPiUrl, httpEntity, ExternalTransferResponse.class);
 
             if(response.getStatusCode().is2xxSuccessful() && response.getBody() != null && response.getBody().isSuccess()){
-                return "Transfer successful: External";
+                return Optional.of("Transfer successful: External");
             } else {
-                return "Failed: External transfer error";
+                return Optional.of("Failed: External transfer error");
             }
         } catch (Exception e){
             e.printStackTrace();
-            return "Failed: Unable to process external transfer";
+            return Optional.of("Failed: Unable to process external transfer");
         }
     }
 }
