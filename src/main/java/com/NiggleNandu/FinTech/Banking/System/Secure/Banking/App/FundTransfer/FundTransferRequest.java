@@ -3,12 +3,12 @@ package com.NiggleNandu.FinTech.Banking.System.Secure.Banking.App.FundTransfer;
 import java.math.BigDecimal;
 
 public class FundTransferRequest {
-    private Long fromAccountNumber;
-    private Long toAccountId;
+    private String fromAccountNumber;
+    private String toAccountId;
     private BigDecimal amount;
     private boolean isExternalTransfer;
 
-    public FundTransferRequest(BigDecimal amount, Long fromAccountNumber, boolean isExternalTransfer, Long toAccountId) {
+    public FundTransferRequest(BigDecimal amount, String fromAccountNumber, boolean isExternalTransfer, String toAccountId) {
         this.amount = amount;
         this.fromAccountNumber = fromAccountNumber;
         this.isExternalTransfer = isExternalTransfer;
@@ -23,11 +23,11 @@ public class FundTransferRequest {
         this.amount = amount;
     }
 
-    public Long getFromAccountNumber() {
+    public String getFromAccountNumber() {
         return fromAccountNumber;
     }
 
-    public void setFromAccountNumber(Long fromAccountNumber) {
+    public void setFromAccountNumber(String fromAccountNumber) {
         this.fromAccountNumber = fromAccountNumber;
     }
 
@@ -39,11 +39,11 @@ public class FundTransferRequest {
         isExternalTransfer = externalTransfer;
     }
 
-    public Long getToAccountId() {
+    public String getToAccountId() {
         return toAccountId;
     }
 
-    public void setToAccountId(Long toAccountId) {
+    public void setToAccountId(String toAccountId) {
         this.toAccountId = toAccountId;
     }
 }

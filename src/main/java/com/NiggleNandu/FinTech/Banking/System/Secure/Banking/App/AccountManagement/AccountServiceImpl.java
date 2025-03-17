@@ -58,7 +58,7 @@ public class AccountServiceImpl implements IServiceAccount {
 
     @Override
     public Optional<String> transferFunds(FundTransferRequest request) {
-        return accountRepository.findByAccountNumber(request.getFromAccountNumber())
+        return accountRepository.findByAccountNumber(String.valueOf(request.getFromAccountNumber()))
                 .filter(sender -> request.getAmount().compareTo(BigDecimal.ZERO)> 0)
                 .filter(sender -> sender.getBalance().compareTo(request.getAmount())>=0)
                 .map(sender -> {
@@ -75,7 +75,7 @@ public class AccountServiceImpl implements IServiceAccount {
     }
 
     private String processInternalTransfer(FundTransferRequest request){
-        return accountRepository.findByAccountNumber(request.getFromAccountNumber())
+        return accountRepository.findByAccountNumber(String.valueOf(request.getFromAccountNumber()))
                 .map(receiver -> {
                     receiver.setBalance(receiver.getBalance().add(request.getAmount()));
                     accountRepository.save(receiver);
@@ -88,8 +88,8 @@ public class AccountServiceImpl implements IServiceAccount {
         try {
             ExternalTransferRequest externalRequest = new ExternalTransferRequest(
             request.getAmount(),
-                    request.getFromAccountNumber(),
-                    request.getToAccountId()
+                    Long.parseLong(request.getFromAccountNumber()),
+                    Long.parseLong(request.getToAccountId())
             );
 
             RestTemplate restTemplate = new RestTemplate();

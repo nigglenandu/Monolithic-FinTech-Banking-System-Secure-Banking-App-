@@ -10,6 +10,8 @@ public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
+    @Column(name = "account_number")
     private String accountNumber;
     private BigDecimal balance;
 
