@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -49,7 +50,7 @@ public class LoanServiceImpl implements IServiceLoan {
     }
 
     @Override
-    public Optional<Loan> getLoansByUser(Long userId) {
-        return loanRepository.findById(userId);
+    public List<Loan> getLoansByUser(Long userId) {
+        return loanRepository.findByUserId(userId);
     }
 }

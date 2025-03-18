@@ -1,6 +1,7 @@
 package com.NiggleNandu.FinTech.Banking.System.Secure.Banking.App.LoanManagement;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 public interface IServiceLoan {
@@ -8,5 +9,5 @@ public interface IServiceLoan {
     Optional<Loan> approveLoan(Long loanId);
     Optional<Loan> rejectLoan(Long loanId);
     Optional<Loan> repayLoan(Long loanId);
-    Optional<Loan> getLoansByUser(Long userId);
+    List<Loan> getLoansByUser(Long userId);
 }
