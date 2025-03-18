@@ -20,13 +20,13 @@ public class Loan {
     private LocalDate applicationDate;
     private LocalDate approvalDate;
 
-    public Loan(BigDecimal amount, LocalDate applicationDate, LocalDate approvalDate, Long id, String status, Long userId) {
+    public Loan(Long id, Long userId, BigDecimal amount, String status, LocalDate applicationDate, LocalDate approvalDate) {
+        this.id = id;
+        this.userId = userId;
         this.amount = amount;
+        this.status = status;
         this.applicationDate = applicationDate;
         this.approvalDate = approvalDate;
-        this.id = id;
-        this.status = status;
-        this.userId = userId;
     }
 
     public Loan() {
@@ -48,7 +48,7 @@ public class Loan {
         this.applicationDate = applicationDate;
     }
 
-    public LocalDate getApprovalDate() {
+    public LocalDate getApprovalDate(LocalDate now) {
         return approvalDate;
     }
 
