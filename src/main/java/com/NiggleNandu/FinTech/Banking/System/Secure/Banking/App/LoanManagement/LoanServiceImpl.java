@@ -50,7 +50,8 @@ public class LoanServiceImpl implements IServiceLoan {
     }
 
     @Override
-    public List<Loan> getLoansByUser(Long userId) {
-        return loanRepository.findByUserId(userId);
+    public Optional<List<Loan>> getLoansByUser(Long userId) {
+        return loanRepository.findByUserId(userId)
+                .filter(loans -> !loans.isEmpty());
     }
 }

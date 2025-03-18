@@ -9,5 +9,5 @@ public interface IServiceLoan {
     Optional<Loan> approveLoan(Long loanId);
     Optional<Loan> rejectLoan(Long loanId);
     Optional<Loan> repayLoan(Long loanId);
-    List<Loan> getLoansByUser(Long userId);
+    Optional<List<Loan>> getLoansByUser(Long userId);
 }

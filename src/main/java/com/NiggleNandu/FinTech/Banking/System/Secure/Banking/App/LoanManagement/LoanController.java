@@ -48,8 +48,10 @@ public class LoanController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Loan>> getLoanByUser(@PathVariable Long userId){
-        return ResponseEntity.ok(serviceLoan.getLoansByUser(userId));
+    public ResponseEntity<List<Loan>> getLoanByUser(@PathVariable Long userId) {
+        return serviceLoan.getLoansByUser(userId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
 }
