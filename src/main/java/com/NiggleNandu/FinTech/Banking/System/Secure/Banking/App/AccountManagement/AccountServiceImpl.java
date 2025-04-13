@@ -12,7 +12,6 @@ import org.springframework.web.client.RestTemplate;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
-
 @Service
 public class AccountServiceImpl implements IServiceAccount {
 
@@ -47,6 +46,11 @@ public class AccountServiceImpl implements IServiceAccount {
     }
 
     @Override
+    public Optional<Account> getAccountByNumber(String accountNumber) {
+        return accountRepository.findByAccountNumber(accountNumber);
+    }
+
+    @Override
     public boolean deleteAccountById(Long id) {
         if(accountRepository.existsById(id)){
             accountRepository.deleteById(id);
@@ -58,24 +62,24 @@ public class AccountServiceImpl implements IServiceAccount {
 
     @Override
     public Optional<String> transferFunds(FundTransferRequest request) {
-        return accountRepository.findByAccountNumber(String.valueOf(request.getFromAccountNumber()))
-                .filter(sender -> request.getAmount().compareTo(BigDecimal.ZERO)> 0)
-                .filter(sender -> sender.getBalance().compareTo(request.getAmount())>=0)
-                .map(sender -> {
+        return accountRepository.findByAccountNumber(request.getFromAccountNumber())
+                .filter(sender -> request.getAmount().compareTo(BigDecimal.ZERO) > 0)
+                .filter(sender -> sender.getBalance().compareTo(request.getAmount()) >= 0)
+                .flatMap(sender -> {
                     sender.setBalance(sender.getBalance().subtract(request.getAmount()));
                     accountRepository.save(sender);
 
-                    if(!request.isExternalTransfer()){
+                    if (!request.isExternalTransfer()) {
+
                         return Optional.of(processInternalTransfer(request));
                     } else {
                         return processExternalTransfer(request);
                     }
-                })
-                .orElse(Optional.of("Failed: Transfer could not be completed"));
+                });
     }
 
     private String processInternalTransfer(FundTransferRequest request){
-        return accountRepository.findByAccountNumber(String.valueOf(request.getFromAccountNumber()))
+        return accountRepository.findByAccountNumber(request.getToAccountNumber())
                 .map(receiver -> {
                     receiver.setBalance(receiver.getBalance().add(request.getAmount()));
                     accountRepository.save(receiver);
@@ -84,19 +88,20 @@ public class AccountServiceImpl implements IServiceAccount {
     }
 
     private Optional<String> processExternalTransfer(FundTransferRequest request){
-       String externalAPiUrl ="https://api.externalbank.com/transfer";
+        String externalAPiUrl ="http://localhost:8080/api/funds/transfer";
         try {
             ExternalTransferRequest externalRequest = new ExternalTransferRequest(
-            request.getAmount(),
+                    request.getAmount(),
                     Long.parseLong(request.getFromAccountNumber()),
-                    Long.parseLong(request.getToAccountId())
+                    Long.parseLong(request.getToAccountNumber())
             );
 
             RestTemplate restTemplate = new RestTemplate();
             HttpEntity<ExternalTransferRequest> httpEntity = new HttpEntity<>(externalRequest);
-            ResponseEntity<ExternalTransferResponse> response = restTemplate.postForEntity(externalAPiUrl, httpEntity, ExternalTransferResponse.class);
+            //ResponseEntity<ExternalTransferResponse> response = restTemplate.postForEntity(externalAPiUrl, httpEntity, ExternalTransferResponse.class);
+            ResponseEntity<String> response = restTemplate.postForEntity(externalAPiUrl, httpEntity, String.class);
 
-            if(response.getStatusCode().is2xxSuccessful() && response.getBody() != null && response.getBody().isSuccess()){
+            if(response.getStatusCode().is2xxSuccessful() && response.getBody() != null && response.getBody().toLowerCase().contains("success")){
                 return Optional.of("Transfer successful: External");
             } else {
                 return Optional.of("Failed: External transfer error");

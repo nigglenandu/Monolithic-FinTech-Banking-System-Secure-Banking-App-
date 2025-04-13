@@ -12,4 +12,5 @@ public interface IServiceAccount {
     Optional<Account> updateAccountById(Long id, Account account);
     boolean deleteAccountById(Long id);
     Optional<String> transferFunds(FundTransferRequest request);
+    Optional<Account> getAccountByNumber(String accountNumber);
 }
