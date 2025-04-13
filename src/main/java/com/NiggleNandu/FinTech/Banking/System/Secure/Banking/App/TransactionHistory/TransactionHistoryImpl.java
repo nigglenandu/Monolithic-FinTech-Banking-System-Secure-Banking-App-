@@ -14,12 +14,12 @@ public class TransactionHistoryImpl implements IServiceTransaction{
     @Override
     public Page<Transaction> getTransactionHistory(Long accountId, int page, int size) {
         PageRequest pageable = PageRequest.of(page, size, Sort.by("timestamp").descending());
-        return TransactionRepository.findByAccountId(accountId, pageable);
+        return transactionRepository.findByAccountId(accountId, pageable);
     }
 
     @Override
     public Page<Transaction> searchTransactionByType(Long accountId, String type, int page, int size) {
         PageRequest pageable = PageRequest.of(page, size, Sort.by("timestamp").descending());
-        return TransactionRepository.findByAccountIdAndType(accountId, type, pageable);
+        return transactionRepository.findByAccountIdAndType(accountId, type, pageable);
     }
 }

@@ -33,7 +33,7 @@ public class LoanController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/rejected/{loanId")
+    @PutMapping("/rejected/{loanId}")
     public ResponseEntity<Loan> rejectLoan(@PathVariable Long loanId){
         return serviceLoan.rejectLoan(loanId)
                 .map(ResponseEntity::ok)
